@@ -1,150 +1,191 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم المكتب - النائب علي بدوي</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #f8f9fa; color: #333; }
-        .sidebar { background: #1e3c72; color: white; min-height: 100vh; padding: 20px; }
-        .card-custom { border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .table th { background-color: #1e3c72; color: white; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>لوحة مكتب النائب علي بدوي</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'Cairo',sans-serif;background:#f4f6f9;color:#333}
+  .topbar{background:linear-gradient(135deg,#1e3c72,#2a5298);color:#fff}
+  .card-custom{border:none;border-radius:15px;box-shadow:0 4px 20px rgba(0,0,0,.05);background:#fff}
+  .btn-main{background:#1e3c72;border:none;color:#fff;font-weight:700;border-radius:10px}
+  .btn-main:hover{background:#2a5298;color:#fff}
+  .req{cursor:pointer;border-radius:12px;border:1px solid #e6e9ef;background:#fff;padding:12px 14px;margin-bottom:10px}
+  .req:hover{border-color:#2a5298}
+  .req.new{border-right:5px solid #dc3545}
+  .st{font-size:.8rem}
+  .details-text{white-space:pre-wrap}
+</style>
 </head>
 <body>
 
-    <!-- شاشة تسجيل الدخول لمكتب النائب -->
-    <div id="loginSection" class="container mt-5" style="max-width: 450px;">
-        <div class="card card-custom p-4">
-            <h3 class="text-center fw-bold text-primary mb-4">تسجيل دخول المكتب</h3>
-            <p class="text-center text-muted small mb-4">مخصص لفريق عمل وإدارة مكتب النائب علي بدوي</p>
-            <form id="loginForm">
-                <div class="mb-3">
-                    <label class="form-label fw-bold">البريد الإلكتروني للمكتب</label>
-                    <input type="email" id="email" class="form-control" value="office@badawi.com" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">كلمة المرور</label>
-                    <input type="password" id="password" class="form-control" placeholder="أدخل كلمة المرور" required>
-                </div>
-                <button type="submit" id="loginBtn" class="btn btn-primary w-100 fw-bold py-2">دخول لوحة التحكم</button>
-            </form>
-            <div id="loginError" class="alert alert-danger mt-3 d-none text-center"></div>
+<div id="loginView" class="container py-5 d-none" style="max-width:420px">
+  <div class="card card-custom p-4">
+    <h4 class="fw-bold text-primary mb-3 text-center">دخول مكتب النائب</h4>
+    <div class="mb-3">
+      <label class="form-label fw-bold" for="email">البريد الإلكتروني</label>
+      <input type="email" id="email" class="form-control" dir="ltr" autocomplete="username">
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-bold" for="password">كلمة المرور</label>
+      <input type="password" id="password" class="form-control" dir="ltr" autocomplete="current-password">
+    </div>
+    <div id="loginError" class="alert alert-danger d-none"></div>
+    <button id="loginBtn" class="btn btn-main w-100 py-2">دخول</button>
+  </div>
+</div>
+
+<div id="appView" class="d-none">
+  <div class="topbar py-3 mb-3">
+    <div class="container d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 fw-bold">طلبات المواطنين</h5>
+      <button id="logoutBtn" class="btn btn-sm btn-light fw-bold">خروج</button>
+    </div>
+  </div>
+
+  <div class="container pb-5">
+    <div class="row g-2 mb-3" id="stats"></div>
+
+    <div class="card card-custom p-3 mb-3">
+      <div class="row g-2">
+        <div class="col-md-5"><input id="search" class="form-control" placeholder="بحث بالاسم أو الرقم القومي أو الهاتف أو الرقم المرجعي"></div>
+        <div class="col-6 col-md-3">
+          <select id="fStatus" class="form-select">
+            <option value="">كل الحالات</option>
+            <option>جديد</option><option>قيد المراجعة</option><option>تمت الإحالة</option><option>تم الحل</option><option>مرفوض</option>
+          </select>
         </div>
+        <div class="col-6 col-md-3">
+          <select id="fSector" class="form-select">
+            <option value="">كل القطاعات</option>
+            <option>صحة</option><option>طرق ومرافق</option><option>تعليم</option><option>خدمات اجتماعية</option><option>تموين وزراعة</option><option>توظيف</option><option>أخرى</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-1"><button id="refreshBtn" class="btn btn-outline-primary w-100" title="تحديث">↻</button></div>
+      </div>
     </div>
 
-    <!-- لوحة التحكم الرئيسية (مخفية حتى يتم تسجيل الدخول) -->
-    <div id="dashboardSection" class="container-fluid d-none">
-        <div class="row">
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                <h4 class="fw-bold text-center py-3 border-bottom">إدارة الطلبات</h4>
-                <p class="small text-center text-warning mb-4">office@badawi.com</p>
-                <button onclick="logout()" class="btn btn-outline-light w-100 btn-sm mt-3">تسجيل الخروج</button>
-            </nav>
+    <div id="list"></div>
+  </div>
+</div>
 
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="fw-bold text-primary">متابعة طلبات المواطنين الواردة</h2>
-                    <button onclick="loadRequests()" class="btn btn-secondary btn-sm">🔄 تحديث البيانات</button>
-                </div>
-
-                <div class="card card-custom p-3">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                                <tr>
-                                    <th>رقم التذكرة</th>
-                                    <th>اسم المواطن</th>
-                                    <th>الرقم القومي</th>
-                                    <th>القطاع</th>
-                                    <th>رقم الهاتف</th>
-                                    <th>تاريخ التقديم</th>
-                                    <th>الحالة</th>
-                                </tr>
-                            </thead>
-                            <tbody id="requestsTableBody">
-                                <tr><td colspan="7" class="text-center py-4">جاري تحميل الطلبات...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </main>
-        </div>
+<div class="modal fade" id="detailModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content" style="border-radius:16px">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="mTicket" dir="ltr"></h5>
+        <button class="btn-close ms-0 me-auto" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="mInfo" class="mb-3"></div>
+        <div class="mb-3"><strong>التفاصيل:</strong><div id="mDetails" class="details-text mt-1 p-2 bg-light rounded"></div></div>
+        <div id="mFile" class="mb-3"></div>
+        <label class="form-label fw-bold" for="mStatus">الحالة</label>
+        <select id="mStatus" class="form-select mb-3">
+          <option>جديد</option><option>قيد المراجعة</option><option>تمت الإحالة</option><option>تم الحل</option><option>مرفوض</option>
+        </select>
+        <label class="form-label fw-bold" for="mNote">رد المكتب (يظهر للمواطن عند الاستعلام)</label>
+        <textarea id="mNote" class="form-control" rows="3" maxlength="1000"></textarea>
+        <div id="mMsg" class="small mt-2"></div>
+      </div>
+      <div class="modal-footer">
+        <a id="mWhats" class="btn btn-success" target="_blank" rel="noopener">واتساب</a>
+        <button id="mSave" class="btn btn-main px-4">حفظ</button>
+      </div>
     </div>
+  </div>
+</div>
 
-    <script>
-        const SUPABASE_URL = 'https://qnkdfrxavrztgyhrodxl.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFua2RmcnhhdnJ6dGd5aHJvZHhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDf...';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFua2RmcnhhdnJ6dGd5aHJvZHhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDf...');
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+  const SUPABASE_URL = 'https://qnkdfrxavrztgyhrodxl.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_xGfJoG2Cuxj9T-B6dC_gnw_FwFAwo78';
 
-        // تسجيل الدخول
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const errDiv = document.getElementById('loginError');
-            
-            errDiv.classList.add('d-none');
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const $ = id => document.getElementById(id);
+  let all = [], current = null, channel = null;
+  const modal = new bootstrap.Modal($('detailModal'));
 
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
+  const badge = s => ({ 'جديد':'danger','قيد المراجعة':'warning text-dark','تمت الإحالة':'info text-dark','تم الحل':'success','مرفوض':'secondary' }[s] || 'secondary');
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const fmt = d => new Date(d).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
 
-            if (error) {
-                errDiv.textContent = 'خطأ في البريد الإلكتروني أو كلمة المرور!';
-                errDiv.classList.remove('d-none');
-            } else {
-                document.getElementById('loginSection').classList.add('d-none');
-                document.getElementById('dashboardSection').classList.remove('d-none');
-                loadRequests();
-            }
-        });
+  async function init(){
+    const { data } = await sb.auth.getSession();
+    data.session ? startApp() : showLogin();
+  }
+  function showLogin(){ $('appView').classList.add('d-none'); $('loginView').classList.remove('d-none'); }
+  async function startApp(){
+    $('loginView').classList.add('d-none'); $('appView').classList.remove('d-none');
+    await load();
+    if (channel) sb.removeChannel(channel);
+    channel = sb.channel('requests-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'requests' }, () => load())
+      .subscribe();
+  }
 
-        // جلب الطلبات لقاعدة البيانات
-        async function loadRequests() {
-            const tbody = document.getElementById('requestsTableBody');
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4">جاري الجلب...</td></tr>`;
+  $('loginBtn').addEventListener('click', async () => {
+    const err = $('loginError'); err.classList.add('d-none');
+    const { error } = await sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value });
+    if (error) { err.textContent = 'البريد أو كلمة المرور غير صحيحة.'; err.classList.remove('d-none'); return; }
+    $('password').value = '';
+    startApp();
+  });
+  $('password').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
+  $('logoutBtn').addEventListener('click', async () => { await sb.auth.signOut(); if (channel) sb.removeChannel(channel); showLogin(); });
 
-            const { data, error } = await supabaseClient
-                .from('requests')
-                .select('*')
-                .order('created_at', { ascending: false });
+  async function load(){
+    const { data, error } = await sb.from('requests').select('*').order('created_at', { ascending: false });
+    if (error) { $('list').replaceChildren(el('div', 'alert alert-danger', 'تعذّر تحميل الطلبات: ' + error.message)); return; }
+    all = data; render();
+  }
 
-            if (error) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-4">فشل تحميل الطلبات.</td></tr>`;
-                return;
-            }
+  function render(){
+    const q = $('search').value.trim().toLowerCase();
+    const fs = $('fStatus').value, fc = $('fSector').value;
 
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">لا توجد طلبات مسجلة حتى الآن.</td></tr>`;
-                return;
-            }
+    const counts = { 'جديد':0, 'قيد المراجعة':0, 'تمت الإحالة':0, 'تم الحل':0 };
+    all.forEach(r => { if (r.status in counts) counts[r.status]++; });
+    const stats = $('stats'); stats.replaceChildren();
+    [['الإجمالي', all.length, 'primary'], ['جديد', counts['جديد'], 'danger'], ['قيد المراجعة', counts['قيد المراجعة'], 'warning'], ['تم الحل', counts['تم الحل'], 'success']].forEach(([k, v, c]) => {
+      const col = el('div', 'col-6 col-md-3');
+      const card = el('div', 'card card-custom p-3 text-center');
+      card.append(el('div', 'fs-3 fw-bold text-' + c, v), el('div', 'small text-muted', k));
+      col.appendChild(card); stats.appendChild(col);
+    });
 
-            tbody.innerHTML = '';
-            data.forEach(req => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="fw-bold text-primary">${req.ticket_id}</td>
-                        <td>${req.full_name}</td>
-                        <td>${req.national_id}</td>
-                        <td><span class="badge bg-light text-dark border">${req.sector}</span></td>
-                        <td>${req.phone}</td>
-                        <td>${new Date(req.created_at).toLocaleDateString('ar-EG')}</td>
-                        <td><span class="badge bg-warning text-dark">${req.status || 'قيد المراجعة'}</span></td>
-                    </tr>
-                `;
-            });
-        }
+    const rows = all.filter(r =>
+      (!fs || r.status === fs) && (!fc || r.sector === fc) &&
+      (!q || [r.full_name, r.national_id, r.phone, r.ticket, r.location].some(x => (x || '').toLowerCase().includes(q)))
+    );
 
-        // تسجيل الخروج
-        async function logout() {
-            await supabaseClient.auth.signOut();
-            location.reload();
-        }
-    </script>
-</body>
-</html>
+    const list = $('list'); list.replaceChildren();
+    if (!rows.length) { list.appendChild(el('div', 'text-center text-muted py-5', 'لا توجد طلبات مطابقة.')); return; }
+
+    rows.forEach(r => {
+      const d = el('div', 'req' + (r.status === 'جديد' ? ' new' : ''));
+      const top = el('div', 'd-flex justify-content-between align-items-center mb-1');
+      top.append(el('strong', '', r.full_name), el('span', 'badge st bg-' + badge(r.status), r.status));
+      const mid = el('div', 'small text-muted', `${r.sector} • ${r.location} • ${r.phone}`);
+      const det = el('div', 'small mt-1', r.details.length > 90 ? r.details.slice(0, 90) + '…' : r.details);
+      const bot = el('div', 'small text-muted mt-1'); bot.dir = 'ltr'; bot.style.textAlign = 'right';
+      bot.textContent = `${r.ticket} — ${fmt(r.created_at)}`;
+      d.append(top, mid, det, bot);
+      d.addEventListener('click', () => openDetail(r));
+      list.appendChild(d);
+    });
+  }
+
+  ['search', 'fStatus', 'fSector'].forEach(id => $(id).addEventListener('input', render));
+  $('refreshBtn').addEventListener('click', load);
+
+  async function openDetail(r){
+    current = r;
+    $('mTicket').textContent = r.ticket;
+    const info = $('mInfo'); info.replaceChildren();
+    [['الاسم', r.full_name], ['الرقم القومي', r.national_id], ['الهاتف', r.phone], ['المنطقة', r.location], ['القطاع', r.sector], ['التاريخ', fmt(r.created_at)]].forEach(([k, v]) => {
+      const p = el('div', 'mb-1
