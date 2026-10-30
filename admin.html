@@ -18,6 +18,7 @@
   .req.new{border-right:5px solid #dc3545}
   .st{font-size:.8rem}
   .details-text{white-space:pre-wrap}
+  .link-box{font-size:.7rem;color:#6c757d;word-break:break-all;direction:ltr;text-align:left}
 </style>
 </head>
 <body>
@@ -47,6 +48,24 @@
   </div>
 
   <div class="container pb-5">
+
+    <div class="row g-2 mb-3">
+      <div class="col-6">
+        <div class="card card-custom p-3 text-center h-100">
+          <div class="fw-bold mb-1">رابط البوابة</div>
+          <div class="link-box mb-2" id="portalLinkText"></div>
+          <button class="btn btn-main btn-sm w-100" id="copyPortal">نسخ الرابط</button>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="card card-custom p-3 text-center h-100">
+          <div class="fw-bold mb-1">رابط لوحة الأدمن</div>
+          <div class="link-box mb-2" id="adminLinkText"></div>
+          <button class="btn btn-main btn-sm w-100" id="copyAdmin">نسخ الرابط</button>
+        </div>
+      </div>
+    </div>
+
     <div class="row g-2 mb-3" id="stats"></div>
 
     <div class="card card-custom p-3 mb-3">
@@ -114,6 +133,28 @@
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const fmt = d => new Date(d).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
 
+  // ----- الروابط -----
+  const base = location.href.split('#')[0].split('?')[0].replace(/admin\.html$/, '');
+  const PORTAL_URL = base;
+  const ADMIN_URL = base + 'admin.html';
+  $('portalLinkText').textContent = PORTAL_URL;
+  $('adminLinkText').textContent = ADMIN_URL;
+
+  async function copyLink(url, btn){
+    const old = btn.textContent;
+    try {
+      await navigator.clipboard.writeText(url);
+      btn.textContent = 'تم النسخ ✓';
+    } catch {
+      window.prompt('انسخ الرابط من هنا:', url);
+      return;
+    }
+    setTimeout(() => btn.textContent = old, 1800);
+  }
+  $('copyPortal').addEventListener('click', e => copyLink(PORTAL_URL, e.target));
+  $('copyAdmin').addEventListener('click', e => copyLink(ADMIN_URL, e.target));
+
+  // ----- الدخول -----
   async function init(){
     const { data } = await sb.auth.getSession();
     data.session ? startApp() : showLogin();
@@ -138,6 +179,7 @@
   $('password').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
   $('logoutBtn').addEventListener('click', async () => { await sb.auth.signOut(); if (channel) sb.removeChannel(channel); showLogin(); });
 
+  // ----- تحميل وعرض -----
   async function load(){
     const { data, error } = await sb.from('requests').select('*').order('created_at', { ascending: false });
     if (error) { $('list').replaceChildren(el('div', 'alert alert-danger', 'تعذّر تحميل الطلبات: ' + error.message)); return; }
@@ -183,9 +225,44 @@
   ['search', 'fStatus', 'fSector'].forEach(id => $(id).addEventListener('input', render));
   $('refreshBtn').addEventListener('click', load);
 
+  // ----- التفاصيل -----
   async function openDetail(r){
     current = r;
     $('mTicket').textContent = r.ticket;
     const info = $('mInfo'); info.replaceChildren();
     [['الاسم', r.full_name], ['الرقم القومي', r.national_id], ['الهاتف', r.phone], ['المنطقة', r.location], ['القطاع', r.sector], ['التاريخ', fmt(r.created_at)]].forEach(([k, v]) => {
-      const p = el('div', 'mb-1
+      const p = el('div', 'mb-1'); p.append(el('strong', '', k + ': '), document.createTextNode(v)); info.appendChild(p);
+    });
+    $('mDetails').textContent = r.details;
+    $('mStatus').value = r.status;
+    $('mNote').value = r.admin_note || '';
+    $('mMsg').textContent = '';
+
+    const ph = r.phone.replace(/^0/, '20');
+    $('mWhats').href = `https://wa.me/${ph}`;
+
+    const f = $('mFile'); f.replaceChildren();
+    if (r.attachment) {
+      const { data, error } = await sb.storage.from('attachments').createSignedUrl(r.attachment, 300);
+      if (!error && data) {
+        const a = el('a', 'btn btn-outline-primary btn-sm', 'فتح المرفق');
+        a.href = data.signedUrl; a.target = '_blank'; a.rel = 'noopener'; f.appendChild(a);
+      } else f.appendChild(el('span', 'text-danger small', 'تعذّر تحميل المرفق'));
+    }
+    modal.show();
+  }
+
+  $('mSave').addEventListener('click', async () => {
+    const msg = $('mMsg');
+    const { error } = await sb.from('requests')
+      .update({ status: $('mStatus').value, admin_note: $('mNote').value.trim() || null })
+      .eq('id', current.id);
+    if (error) { msg.className = 'small mt-2 text-danger'; msg.textContent = 'فشل الحفظ: ' + error.message; return; }
+    msg.className = 'small mt-2 text-success'; msg.textContent = 'تم الحفظ ✓';
+    await load();
+  });
+
+  init();
+</script>
+</body>
+</html>
