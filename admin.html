@@ -186,6 +186,22 @@
     all = data; render();
   }
 
+  // ----- الحذف -----
+  async function deleteRequest(r){
+    const ok = window.confirm(`هتحذف طلب "${r.full_name}" (${r.ticket}) نهائيًا ولا يمكن استرجاعه.\nمتأكد؟`);
+    if (!ok) return false;
+
+    const { data, error } = await sb.from('requests').delete().eq('id', r.id).select();
+    if (error) { window.alert('فشل الحذف: ' + error.message); return false; }
+    if (!data || !data.length) {
+      window.alert('الحذف لم يتم. تأكد إنك شغّلت كود صلاحية الحذف في Supabase.');
+      return false;
+    }
+    if (r.attachment) { await sb.storage.from('attachments').remove([r.attachment]); }
+    await load();
+    return true;
+  }
+
   function render(){
     const q = $('search').value.trim().toLowerCase();
     const fs = $('fStatus').value, fc = $('fSector').value;
@@ -216,7 +232,14 @@
       const det = el('div', 'small mt-1', r.details.length > 90 ? r.details.slice(0, 90) + '…' : r.details);
       const bot = el('div', 'small text-muted mt-1'); bot.dir = 'ltr'; bot.style.textAlign = 'right';
       bot.textContent = `${r.ticket} — ${fmt(r.created_at)}`;
-      d.append(top, mid, det, bot);
+
+      const actions = el('div', 'mt-2 pt-2 border-top');
+      const del = el('button', 'btn btn-sm btn-outline-danger fw-bold', 'حذف');
+      del.type = 'button';
+      del.addEventListener('click', ev => { ev.stopPropagation(); deleteRequest(r); });
+      actions.appendChild(del);
+
+      d.append(top, mid, det, bot, actions);
       d.addEventListener('click', () => openDetail(r));
       list.appendChild(d);
     });
@@ -265,4 +288,4 @@
   init();
 </script>
 </body>
-</html>
+              </html>
