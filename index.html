@@ -188,7 +188,9 @@
       $('complaintForm').reset();
     } catch (err) {
       console.error(err);
-      showError('تعذّر إرسال الطلب. تأكد من الاتصال بالإنترنت وحاول مرة أخرى.');
+      const m = (err && err.message) || '';
+      if (m.startsWith('LIMIT:')) showError(m.slice(6));
+      else showError('تعذّر إرسال الطلب. تأكد من الاتصال بالإنترنت وحاول مرة أخرى.');
     } finally {
       btn.disabled = false; btn.textContent = 'إرسال الطلب والحصول على رقم مرجعي';
     }
@@ -231,4 +233,4 @@
   $('trackInput').addEventListener('keydown', e => { if (e.key === 'Enter') trackTicket(); });
 </script>
 </body>
-            </html>
+</html>
