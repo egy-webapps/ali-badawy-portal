@@ -69,6 +69,9 @@
           <button class="btn btn-main btn-sm w-100" id="copyAdmin">نسخ الرابط</button>
         </div>
       </div>
+      <div class="col-12">
+        <button id="posterBtn" class="btn btn-outline-primary w-100 fw-bold">🖨️ طباعة بوستر QR للبوابة</button>
+      </div>
     </div>
 
     <div class="row g-2 mb-3" id="stats"></div>
@@ -132,6 +135,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
   const SUPABASE_URL = 'https://qnkdfrxavrztgyhrodxl.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_xGfJoG2Cuxj9T-B6dC_gnw_FwFAwo78';
@@ -167,6 +171,54 @@
   }
   $('copyPortal').addEventListener('click', e => copyLink(PORTAL_URL, e.target));
   $('copyAdmin').addEventListener('click', e => copyLink(ADMIN_URL, e.target));
+
+  // ----- بوستر QR -----
+  function makeQR(text){
+    return new Promise(resolve => {
+      const box = document.createElement('div');
+      new QRCode(box, { text, width: 512, height: 512, correctLevel: QRCode.CorrectLevel.M });
+      setTimeout(() => {
+        const c = box.querySelector('canvas');
+        const img = box.querySelector('img');
+        resolve(c ? c.toDataURL('image/png') : (img ? img.src : null));
+      }, 200);
+    });
+  }
+
+  $('posterBtn').addEventListener('click', async () => {
+    const w = window.open('', '_blank');
+    if (!w) { window.alert('اسمح بالنوافذ المنبثقة للمتصفح عشان تقدر تطبع البوستر.'); return; }
+    w.document.write('<p style="font-family:sans-serif;text-align:center;margin-top:40px">جارٍ تجهيز البوستر...</p>');
+    const qr = await makeQR(PORTAL_URL);
+    if (!qr) { w.close(); window.alert('تعذّر إنشاء كود QR.'); return; }
+    const photo = new URL('badawi.jpg', PORTAL_URL).href;
+    w.document.open();
+    w.document.write(`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>بوستر البوابة</title>
+<style>
+  @page{size:A4;margin:12mm}
+  body{font-family:Tahoma,Arial,sans-serif;text-align:center;color:#12326b;margin:0;padding:18px}
+  .frame{border:6px solid #1e3c72;border-radius:24px;padding:28px 20px}
+  .photo{width:150px;height:150px;border-radius:50%;object-fit:cover;border:5px solid #1e3c72}
+  h1{font-size:34px;margin:14px 0 6px}
+  h2{font-size:20px;margin:0 0 18px;font-weight:normal;color:#333}
+  .qr{width:330px;height:330px;margin:10px auto;display:block}
+  .scan{font-size:22px;font-weight:bold;margin:14px 0 6px}
+  .link{font-size:13px;color:#555;direction:ltr;word-break:break-all}
+  .foot{margin-top:18px;font-size:20px;font-weight:bold}
+</style></head><body>
+<div class="frame">
+  <img class="photo" src="${esc(photo)}" alt="" onerror="this.style.display='none'">
+  <h1>قدّم طلبك من بيتك</h1>
+  <h2>البوابة الرقمية لخدمة مواطني الدائرة</h2>
+  <img class="qr" src="${qr}" alt="QR">
+  <div class="scan">صوّر الكود بكاميرا الموبايل وقدّم طلبك</div>
+  <div class="link">${esc(PORTAL_URL)}</div>
+  <div class="foot">تحت رعاية النائب / علي بدوي</div>
+</div>
+<script>window.onload=function(){setTimeout(function(){window.print();},400);}<\/script>
+</body></html>`);
+    w.document.close();
+  });
 
   // ----- الدخول -----
   async function init(){
@@ -307,7 +359,7 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   });
 
-  // ----- الطباعة -----
+  // ----- طباعة طلب -----
   function printRequest(r){
     const status = $('mStatus').value, note = $('mNote').value.trim();
     const w = window.open('', '_blank');
@@ -393,4 +445,4 @@ ${note ? row('رد المكتب', note) : ''}
   init();
 </script>
 </body>
-          </html>
+  </html>
