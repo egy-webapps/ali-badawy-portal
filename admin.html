@@ -19,6 +19,11 @@
   .st{font-size:.8rem}
   .details-text{white-space:pre-wrap}
   .link-box{font-size:.7rem;color:#6c757d;word-break:break-all;direction:ltr;text-align:left}
+  .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:.85rem}
+  .bar-label{width:95px;flex-shrink:0}
+  .bar-track{flex:1;background:#eef2f7;border-radius:8px;height:18px;overflow:hidden}
+  .bar-fill{height:100%;background:linear-gradient(90deg,#1e3c72,#2a5298);border-radius:8px;min-width:2px}
+  .bar-num{width:28px;text-align:left;font-weight:700}
 </style>
 </head>
 <body>
@@ -69,9 +74,14 @@
     <div class="row g-2 mb-3" id="stats"></div>
 
     <div class="card card-custom p-3 mb-3">
+      <div class="fw-bold mb-3">الطلبات حسب القطاع</div>
+      <div id="chart"></div>
+    </div>
+
+    <div class="card card-custom p-3 mb-3">
       <div class="row g-2">
-        <div class="col-md-5"><input id="search" class="form-control" placeholder="بحث بالاسم أو الرقم القومي أو الهاتف أو الرقم المرجعي"></div>
-        <div class="col-6 col-md-3">
+        <div class="col-12 col-md-4"><input id="search" class="form-control" placeholder="بحث بالاسم أو الرقم القومي أو الهاتف أو الرقم المرجعي"></div>
+        <div class="col-6 col-md-2">
           <select id="fStatus" class="form-select">
             <option value="">كل الحالات</option>
             <option>جديد</option><option>قيد المراجعة</option><option>تمت الإحالة</option><option>تم الحل</option><option>مرفوض</option>
@@ -83,7 +93,8 @@
             <option>صحة</option><option>طرق ومرافق</option><option>تعليم</option><option>خدمات اجتماعية</option><option>تموين وزراعة</option><option>توظيف</option><option>أخرى</option>
           </select>
         </div>
-        <div class="col-12 col-md-1"><button id="refreshBtn" class="btn btn-outline-primary w-100" title="تحديث">↻</button></div>
+        <div class="col-6 col-md-1"><button id="refreshBtn" class="btn btn-outline-primary w-100" title="تحديث">↻</button></div>
+        <div class="col-6 col-md-2"><button id="exportBtn" class="btn btn-success w-100 fw-bold">تصدير Excel</button></div>
       </div>
     </div>
 
@@ -112,6 +123,7 @@
       </div>
       <div class="modal-footer">
         <a id="mWhats" class="btn btn-success" target="_blank" rel="noopener">واتساب</a>
+        <button id="mPrint" class="btn btn-outline-secondary">طباعة</button>
         <button id="mSave" class="btn btn-main px-4">حفظ</button>
       </div>
     </div>
@@ -128,10 +140,12 @@
   const $ = id => document.getElementById(id);
   let all = [], current = null, channel = null;
   const modal = new bootstrap.Modal($('detailModal'));
+  const SECTORS = ['صحة', 'طرق ومرافق', 'تعليم', 'خدمات اجتماعية', 'تموين وزراعة', 'توظيف', 'أخرى'];
 
   const badge = s => ({ 'جديد':'danger','قيد المراجعة':'warning text-dark','تمت الإحالة':'info text-dark','تم الحل':'success','مرفوض':'secondary' }[s] || 'secondary');
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const fmt = d => new Date(d).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 
   // ----- الروابط -----
   const base = location.href.split('#')[0].split('?')[0].replace(/admin\.html$/, '');
@@ -179,7 +193,7 @@
   $('password').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
   $('logoutBtn').addEventListener('click', async () => { await sb.auth.signOut(); if (channel) sb.removeChannel(channel); showLogin(); });
 
-  // ----- تحميل وعرض -----
+  // ----- تحميل -----
   async function load(){
     const { data, error } = await sb.from('requests').select('*').order('created_at', { ascending: false });
     if (error) { $('list').replaceChildren(el('div', 'alert alert-danger', 'تعذّر تحميل الطلبات: ' + error.message)); return; }
@@ -189,23 +203,43 @@
   // ----- الحذف -----
   async function deleteRequest(r){
     const ok = window.confirm(`هتحذف طلب "${r.full_name}" (${r.ticket}) نهائيًا ولا يمكن استرجاعه.\nمتأكد؟`);
-    if (!ok) return false;
-
+    if (!ok) return;
     const { data, error } = await sb.from('requests').delete().eq('id', r.id).select();
-    if (error) { window.alert('فشل الحذف: ' + error.message); return false; }
-    if (!data || !data.length) {
-      window.alert('الحذف لم يتم. تأكد إنك شغّلت كود صلاحية الحذف في Supabase.');
-      return false;
-    }
+    if (error) { window.alert('فشل الحذف: ' + error.message); return; }
+    if (!data || !data.length) { window.alert('الحذف لم يتم. تأكد إنك شغّلت كود صلاحية الحذف في Supabase.'); return; }
     if (r.attachment) { await sb.storage.from('attachments').remove([r.attachment]); }
     await load();
-    return true;
   }
 
-  function render(){
+  // ----- الفلترة -----
+  function getFiltered(){
     const q = $('search').value.trim().toLowerCase();
     const fs = $('fStatus').value, fc = $('fSector').value;
+    return all.filter(r =>
+      (!fs || r.status === fs) && (!fc || r.sector === fc) &&
+      (!q || [r.full_name, r.national_id, r.phone, r.ticket, r.location].some(x => (x || '').toLowerCase().includes(q)))
+    );
+  }
 
+  // ----- الرسم البياني -----
+  function renderChart(){
+    const chart = $('chart'); chart.replaceChildren();
+    const counts = {};
+    SECTORS.forEach(s => counts[s] = 0);
+    all.forEach(r => { counts[r.sector] = (counts[r.sector] || 0) + 1; });
+    const max = Math.max(1, ...Object.values(counts));
+    Object.entries(counts).forEach(([name, n]) => {
+      const row = el('div', 'bar-row');
+      const track = el('div', 'bar-track');
+      const fill = el('div', 'bar-fill'); fill.style.width = (n / max * 100) + '%';
+      track.appendChild(fill);
+      row.append(el('div', 'bar-label', name), track, el('div', 'bar-num', n));
+      chart.appendChild(row);
+    });
+  }
+
+  // ----- العرض -----
+  function render(){
     const counts = { 'جديد':0, 'قيد المراجعة':0, 'تمت الإحالة':0, 'تم الحل':0 };
     all.forEach(r => { if (r.status in counts) counts[r.status]++; });
     const stats = $('stats'); stats.replaceChildren();
@@ -216,11 +250,9 @@
       col.appendChild(card); stats.appendChild(col);
     });
 
-    const rows = all.filter(r =>
-      (!fs || r.status === fs) && (!fc || r.sector === fc) &&
-      (!q || [r.full_name, r.national_id, r.phone, r.ticket, r.location].some(x => (x || '').toLowerCase().includes(q)))
-    );
+    renderChart();
 
+    const rows = getFiltered();
     const list = $('list'); list.replaceChildren();
     if (!rows.length) { list.appendChild(el('div', 'text-center text-muted py-5', 'لا توجد طلبات مطابقة.')); return; }
 
@@ -248,6 +280,81 @@
   ['search', 'fStatus', 'fSector'].forEach(id => $(id).addEventListener('input', render));
   $('refreshBtn').addEventListener('click', load);
 
+  // ----- التصدير إلى Excel (CSV) -----
+  function csvCell(v, asText){
+    let s = String(v == null ? '' : v).replace(/\r?\n/g, ' ');
+    if (asText) s = '\t' + s;
+    else if (/^[=+\-@]/.test(s)) s = "'" + s;
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  $('exportBtn').addEventListener('click', () => {
+    const rows = getFiltered();
+    if (!rows.length) { window.alert('لا توجد طلبات لتصديرها.'); return; }
+    const head = ['الرقم المرجعي', 'الاسم', 'الرقم القومي', 'الهاتف', 'المنطقة', 'القطاع', 'التفاصيل', 'الحالة', 'رد المكتب', 'التاريخ'];
+    const lines = [head.map(h => csvCell(h)).join(',')];
+    rows.forEach(r => {
+      lines.push([
+        csvCell(r.ticket), csvCell(r.full_name), csvCell(r.national_id, true), csvCell(r.phone, true),
+        csvCell(r.location), csvCell(r.sector), csvCell(r.details), csvCell(r.status),
+        csvCell(r.admin_note), csvCell(fmt(r.created_at))
+      ].join(','));
+    });
+    const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'requests-' + new Date().toISOString().slice(0, 10) + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  });
+
+  // ----- الطباعة -----
+  function printRequest(r){
+    const status = $('mStatus').value, note = $('mNote').value.trim();
+    const w = window.open('', '_blank');
+    if (!w) { window.alert('اسمح بالنوافذ المنبثقة للمتصفح عشان تقدر تطبع.'); return; }
+    const row = (k, v) => `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`;
+    w.document.write(`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>${esc(r.ticket)}</title>
+<style>
+  body{font-family:Tahoma,Arial,sans-serif;padding:28px;color:#111}
+  h1{font-size:20px;text-align:center;margin:0 0 4px}
+  h2{font-size:15px;text-align:center;margin:0 0 20px;font-weight:normal;color:#444}
+  table{width:100%;border-collapse:collapse;margin-bottom:16px}
+  th,td{border:1px solid #888;padding:8px 10px;text-align:right;vertical-align:top;font-size:14px}
+  th{width:28%;background:#f0f0f0}
+  td{white-space:pre-wrap}
+  .sign{margin-top:40px;display:flex;justify-content:space-between;font-size:14px}
+</style></head><body>
+<h1>مكتب النائب / علي بدوي</h1>
+<h2>بيان طلب مواطن</h2>
+<table>
+${row('الرقم المرجعي', r.ticket)}
+${row('تاريخ التقديم', fmt(r.created_at))}
+${row('الاسم', r.full_name)}
+${row('الرقم القومي', r.national_id)}
+${row('الهاتف', r.phone)}
+${row('المركز / القرية', r.location)}
+${row('القطاع', r.sector)}
+${row('الحالة', status)}
+${row('تفاصيل الطلب', r.details)}
+${note ? row('رد المكتب', note) : ''}
+</table>
+<div class="sign"><div>توقيع المسؤول: ................</div><div>التاريخ: ................</div></div>
+<script>window.onload=function(){window.print();}<\/script>
+</body></html>`);
+    w.document.close();
+  }
+  $('mPrint').addEventListener('click', () => { if (current) printRequest(current); });
+
+  // ----- رسالة واتساب جاهزة -----
+  $('mWhats').addEventListener('click', e => {
+    if (!current) return;
+    const ph = current.phone.replace(/^0/, '20');
+    const note = $('mNote').value.trim();
+    let text = `مكتب النائب علي بدوي:\nبخصوص طلبكم رقم ${current.ticket}، حالته الآن: ${$('mStatus').value}.`;
+    if (note) text += `\nرد المكتب: ${note}`;
+    e.currentTarget.href = `https://wa.me/${ph}?text=${encodeURIComponent(text)}`;
+  });
+
   // ----- التفاصيل -----
   async function openDetail(r){
     current = r;
@@ -260,9 +367,7 @@
     $('mStatus').value = r.status;
     $('mNote').value = r.admin_note || '';
     $('mMsg').textContent = '';
-
-    const ph = r.phone.replace(/^0/, '20');
-    $('mWhats').href = `https://wa.me/${ph}`;
+    $('mWhats').href = 'https://wa.me/' + r.phone.replace(/^0/, '20');
 
     const f = $('mFile'); f.replaceChildren();
     if (r.attachment) {
@@ -288,4 +393,4 @@
   init();
 </script>
 </body>
-              </html>
+          </html>
