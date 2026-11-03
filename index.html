@@ -132,11 +132,50 @@
             font-weight: 700;
             margin-top: 12px;
             font-size: 0.95rem;
+            cursor: pointer;
+            border: none;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         .btn-action:hover {
             background: #163a6f;
+        }
+
+        /* الأقسام المخفية التي تفتح عند الضغط */
+        .dynamic-section {
+            display: none;
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-top: 4px solid var(--secondary-color);
+        }
+
+        .dynamic-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Cairo', sans-serif;
         }
 
         /* قسم التواصل وأرقام التليفونات */
@@ -230,11 +269,45 @@
             <div class="card-content">
                 <h3>تقديم طلب جديد</h3>
                 <p>قدم طلبك أو شكواك إلى المكتب بسهولة، وسنتابعه حتى الإنجاز.</p>
-                <a href="#request-form" class="btn-action">ابدأ الآن</a>
+                <button class="btn-action" onclick="toggleSection('form-section')">ابدأ الآن</button>
             </div>
             <div class="card-icon">
                 <i class="fa-solid fa-pen-to-square"></i>
             </div>
+        </div>
+
+        <!-- قسم استمارة تقديم الطلب (يفتح عند الضغط) -->
+        <div id="form-section" class="dynamic-section">
+            <h3><i class="fa-solid fa-file-lines"></i> استمارة تسجيل الطلبات والشكاوى</h3>
+            <form id="submitForm">
+                <div class="form-group">
+                    <label>الاسم رباعي:</label>
+                    <input type="text" required placeholder="أدخل اسمك رباعياً">
+                </div>
+                <div class="form-group">
+                    <label>الرقم القومي (14 رقم):</label>
+                    <input type="text" maxlength="14" required placeholder="أدخل الرقم القومي">
+                </div>
+                <div class="form-group">
+                    <label>رقم الموبايل:</label>
+                    <input type="tel" required placeholder="رقم الهاتف للتواصل">
+                </div>
+                <div class="form-group">
+                    <label>نوع الطلب / الشكوى:</label>
+                    <select required>
+                        <option value="">اختر نوع الطلب</option>
+                        <option value="health">خدمات صحية وعلاج</option>
+                        <option value="services">مرافق وخدمات عامة</option>
+                        <option value="employment">فرص عمل</option>
+                        <option value="other">طلبات أخرى</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>تفاصيل الطلب:</label>
+                    <textarea rows="3" required placeholder="اكتب تفاصيل شكواك أو طلبك باختصار"></textarea>
+                </div>
+                <button type="submit" class="btn-action" style="width:100%;">إرسال الطلب للمكتب</button>
+            </form>
         </div>
 
         <!-- كارت متابعة طلب -->
@@ -242,36 +315,16 @@
             <div class="card-content">
                 <h3>متابعة حالة الطلب</h3>
                 <p>أدخل الرقم المرجعي لمعرفة حالة طلبك وآخر التحديثات.</p>
-                <a href="#track-request" class="btn-action" style="background:#444;">متابعة الآن</a>
+                <button class="btn-action" style="background:#444;" onclick="toggleSection('track-section')">متابعة الآن</button>
             </div>
             <div class="card-icon">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </div>
         </div>
 
-        <!-- قسم أرقام التليفونات والتواصل -->
-        <div class="contact-section">
-            <h3><i class="fa-solid fa-headset"></i> تواصل مع مكتب النائب</h3>
-            <div class="phone-item">
-                <i class="fa-solid fa-user-tie"></i>
-                <span>مدير المكتب (أ / عبدالله بدوي):</span>
-                <a href="tel:01016541333" dir="ltr" style="color:var(--primary-color); text-decoration:none;">01016541333</a>
-            </div>
-            <p style="font-size: 0.85rem; color: #777; margin-top: 5px;">خدمة استقبال الشكاوى والطلبات على مدار الساعة</p>
-        </div>
-
-        <!-- قسم من نشاط النائب -->
-        <div class="activity-section">
-            <h3><i class="fa-solid fa-image"></i> من نشاط النائب البرلماني</h3>
-            <p style="font-size: 0.85rem; color: #555;">جهود مستمرة لخدمة أبناء الدائرة وتلبية احتياجاتهم تحت قبة البرلمان.</p>
-            <img src="og-image.jpg" alt="نشاط النائب" class="activity-img">
-        </div>
-
-    </div>
-
-    <footer>
-        <p>جميع الحقوق محفوظة © 2026 | تطوير وتصميم البوابة الرقمية</p>
-    </footer>
-
-</body>
-</html>
+        <!-- قسم متابعة الطلب (يفتح عند الضغط) -->
+        <div id="track-section" class="dynamic-section">
+            <h3><i class="fa-solid5 fa-magnifying-glass"></i> الاستعلام عن حالة الطلب</h3>
+            <div class="form-group">
+                <label>أدخل الرقم المرجعي للطلب:</label>
+                <input type="text" placeholder="مثال: AL
