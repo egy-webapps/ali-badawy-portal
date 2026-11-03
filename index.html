@@ -42,7 +42,7 @@
       display: inline-block;
       margin-bottom: 12px;
   }
-  /* قسم التواصل وأرقام التليفونات ومدير المكتب */
+  /* صندوق تواصل مدير المكتب */
   .contact-box {
       background: #fff;
       border-radius: 15px;
@@ -59,13 +59,26 @@
       direction: ltr;
       display: inline-block;
   }
-  /* قسم النشاط */
-  .activity-box {
-      background: #fff;
+  /* قسم النشاط والفعاليات */
+  .activity-section {
+      margin-top: 25px;
+  }
+  .activity-card {
+      border: none;
       border-radius: 15px;
-      padding: 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,.05);
-      margin-top: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,.06);
+      background: #fff;
+      margin-bottom: 20px;
+      overflow: hidden;
+      transition: transform 0.3s;
+  }
+  .activity-card:hover {
+      transform: translateY(-3px);
+  }
+  .activity-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
   }
 </style>
 </head>
@@ -170,11 +183,47 @@
         <a href="tel:01016541333" class="phone-link fs-5"><i class="fa-solid fa-phone-volume me-1"></i> 01016541333</a>
       </div>
 
-      <!-- قسم من نشاط النائب -->
-      <div class="activity-box text-center">
-        <h5 class="fw-bold mb-2" style="color:var(--primary-color); border-bottom:2px solid var(--secondary-color); padding-bottom:8px;"><i class="fa-solid fa-image text-warning"></i> من نشاط النائب البرلماني</h5>
-        <p class="text-muted small">جهود مستمرة لخدمة أبناء الدائرة وتلبية احتياجاتهم في كافة القطاعات.</p>
-        <img src="og-image.jpg" alt="نشاط النائب" class="img-fluid rounded-3 mt-2 shadow-sm" style="max-height:220px; width:100%; object-fit:cover;">
+      <!-- قسم من نشاط النائب والفعاليات (بالصور الجديدة) -->
+      <div class="activity-section">
+        <h4 class="fw-bold mb-3 text-center" style="color:var(--primary-color);"><i class="fa-solid fa-medal text-warning"></i> جولات وإنجازات معالي النائب علي بدوي</h4>
+        <p class="text-muted text-center small mb-4">مسيرة عمل دؤوب، وتواصل مستمر مع أهالي الدائرة وتحرّك ميداني لا يتوقف لخدمة الصالح العام.</p>
+
+        <!-- الصورة الأولى: تحت قبة البرلمان -->
+        <div class="activity-card">
+          <img src="1000329953.jpg" alt="تحت قبة البرلمان" class="activity-img">
+          <div class="p-3 text-center">
+            <h5 class="fw-bold mb-1" style="color:var(--primary-color);">تحت قبة البرلمان</h5>
+            <p class="text-muted small mb-0">جهد تشريعي ورؤية واعية يمثل فيها النائب صوت المواطن الحقيقي للدفاع عن قضايا ومصالح أهالي الدائرة بكل أمانة وإخلاص.</p>
+          </div>
+        </div>
+
+        <!-- الصورة الثانية: لقاءات جماهيرية -->
+        <div class="activity-card">
+          <img src="1000329946.jpg" alt="لقاءات جماهيرية واجتماعات" class="activity-img">
+          <div class="p-3 text-center">
+            <h5 class="fw-bold mb-1" style="color:var(--primary-color);">تواصل دائم مع أهالي الدائرة</h5>
+            <p class="text-muted small mb-0">استقبال مستمر للمواطنين والاستماع المباشر لمتطلباتهم ومقترحاتهم، وجعل مكتبه دائماً مفتوحاً لخدمة الجميع.</p>
+          </div>
+        </div>
+
+        <!-- الصورة الثالثة: متابعة المشاريع ميدانياً -->
+        <div class="activity-card">
+          <img src="1000329947.jpg" alt="متابعة المشاريع ميدانياً" class="activity-img">
+          <div class="p-3 text-center">
+            <h5 class="fw-bold mb-1" style="color:var(--primary-color);">متابعة ميدانية للمشروعات الخدمية والانشائية</h5>
+            <p class="text-muted small mb-0">معاينة أرض الواقع ومتابعة تنفيذ المشروعات والمرافق الخدمية لضمان سرعة إنجازها وجودة تقديم الخدمات للأهالي.</p>
+          </div>
+        </div>
+
+        <!-- الصورة الرابعة: الجولات الميدانية ورصف الطرق -->
+        <div class="activity-card">
+          <img src="1000329952.jpg" alt="الجولات الميدانية ورصف الطرق" class="activity-img">
+          <div class="p-3 text-center">
+            <h5 class="fw-bold mb-1" style="color:var(--primary-color);">جولات ميدانية لمتابعة أعمال التطوير والرصف</h5>
+            <p class="text-muted small mb-0">تواجد ميداني مستمر مع الأهالي لمتابعة أعمال رصف الطرق وتطوير البنية التحتية والمرافق العامة بالدائرة.</p>
+          </div>
+        </div>
+
       </div>
 
     </div>
