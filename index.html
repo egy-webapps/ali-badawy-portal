@@ -15,7 +15,6 @@
             --bg-color: #f8f9fa;
             --card-bg: #ffffff;
             --text-color: #333333;
-            --font-size-adjust: 0px;
         }
 
         * {
@@ -23,22 +22,21 @@
             margin: 0;
             padding: 0;
             font-family: 'Cairo', sans-serif;
-            transition: background 0.3s, color 0.3s;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-size: calc(16px + var(--font-size-adjust));
+            font-size: 16px;
             line-height: 1.6;
         }
 
-        /* شريط إمكانية الوصول العلوي */
-        .accessibility-bar {
+        /* شريط الهوية العلوي */
+        .header-bar {
             background: #ffffff;
-            padding: 8px 15px;
+            padding: 10px 15px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             border-bottom: 1px solid #e0e0e0;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -47,26 +45,10 @@
         .party-badge {
             background: var(--primary-color);
             color: var(--secondary-color);
-            padding: 4px 12px;
+            padding: 6px 16px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 700;
-        }
-
-        .accessibility-btns button {
-            background: #f1f1f1;
-            border: none;
-            padding: 5px 10px;
-            margin-left: 5px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        .accessibility-btns button:hover {
-            background: var(--secondary-color);
-            color: #fff;
         }
 
         /* الهيدر الرئيسي */
@@ -79,8 +61,8 @@
         }
 
         header img {
-            width: 100px;
-            height: 100px;
+            width: 105px;
+            height: 105px;
             border-radius: 50%;
             border: 3px solid var(--secondary-color);
             object-fit: cover;
@@ -120,13 +102,14 @@
         }
 
         .card-content h3 {
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             color: var(--primary-color);
             margin-bottom: 5px;
+            font-weight: 700;
         }
 
         .card-content p {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: #666;
         }
 
@@ -139,15 +122,16 @@
         }
 
         .btn-action {
-            display: block;
+            display: inline-block;
             text-align: center;
             background: var(--primary-color);
             color: #fff;
-            padding: 12px;
+            padding: 9px 22px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 700;
-            margin-top: 15px;
+            margin-top: 12px;
+            font-size: 0.95rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
@@ -168,7 +152,8 @@
         .contact-section h3 {
             color: var(--primary-color);
             margin-bottom: 12px;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
+            font-weight: 700;
         }
 
         .phone-item {
@@ -177,7 +162,7 @@
             justify-content: center;
             gap: 10px;
             background: #fdf8ec;
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
             margin-bottom: 8px;
             font-weight: 700;
@@ -198,17 +183,18 @@
         }
 
         .activity-section h3 {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             color: var(--primary-color);
             margin-bottom: 10px;
             border-bottom: 2px solid var(--secondary-color);
             padding-bottom: 5px;
+            font-weight: 700;
         }
 
         .activity-img {
             width: 100%;
             border-radius: 8px;
-            height: 180px;
+            height: 190px;
             object-fit: cover;
             margin-top: 10px;
         }
@@ -216,7 +202,7 @@
         footer {
             text-align: center;
             padding: 20px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #777;
             margin-top: 30px;
             border-top: 1px solid #ddd;
@@ -225,13 +211,9 @@
 </head>
 <body>
 
-    <!-- شريط إمكانية الوصول وهوية الحزب -->
-    <div class="accessibility-bar">
+    <!-- شريط الهوية والحزب -->
+    <div class="header-bar">
         <span class="party-badge"><i class="fa-solid fa-star"></i> حزب مستقبل وطن</span>
-        <div class="accessibility-btns">
-            <button onclick="changeFontSize(1)" title="تكبير الخط">+A</button>
-            <button onclick="changeFontSize(-1)" title="تصغير الخط">-A</button>
-        </div>
     </div>
 
     <!-- الهيدر -->
@@ -248,7 +230,7 @@
             <div class="card-content">
                 <h3>تقديم طلب جديد</h3>
                 <p>قدم طلبك أو شكواك إلى المكتب بسهولة، وسنتابعه حتى الإنجاز.</p>
-                <a href="#request-form" class="btn-action" style="display:inline-block; padding: 8px 20px; font-size: 0.9rem;">ابدأ الآن</a>
+                <a href="#request-form" class="btn-action">ابدأ الآن</a>
             </div>
             <div class="card-icon">
                 <i class="fa-solid fa-pen-to-square"></i>
@@ -260,7 +242,7 @@
             <div class="card-content">
                 <h3>متابعة حالة الطلب</h3>
                 <p>أدخل الرقم المرجعي لمعرفة حالة طلبك وآخر التحديثات.</p>
-                <a href="#track-request" class="btn-action" style="display:inline-block; padding: 8px 20px; font-size: 0.9rem; background:#444;">متابعة الآن</a>
+                <a href="#track-request" class="btn-action" style="background:#444;">متابعة الآن</a>
             </div>
             <div class="card-icon">
                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -275,7 +257,7 @@
                 <span>مدير المكتب (أ / عبدالله بدوي):</span>
                 <a href="tel:01016541333" dir="ltr" style="color:var(--primary-color); text-decoration:none;">01016541333</a>
             </div>
-            <p style="font-size: 0.8rem; color: #777; margin-top: 5px;">خدمة استقبال الشكاوى والطلبات على مدار الساعة</p>
+            <p style="font-size: 0.85rem; color: #777; margin-top: 5px;">خدمة استقبال الشكاوى والطلبات على مدار الساعة</p>
         </div>
 
         <!-- قسم من نشاط النائب -->
@@ -291,17 +273,5 @@
         <p>جميع الحقوق محفوظة © 2026 | تطوير وتصميم البوابة الرقمية</p>
     </footer>
 
-    <script>
-        // وظيفة تحكم في حجم الخط
-        function changeFontSize(direction) {
-            const body = document.body;
-            let currentSize = parseInt(window.getComputedStyle(body).fontSize);
-            if (direction === 1 && currentSize < 22) {
-                document.documentElement.style.setProperty('--font-size-adjust', '2px');
-            } else if (direction === -1 && currentSize > 13) {
-                document.documentElement.style.setProperty('--font-size-adjust', '-2px');
-            }
-        }
-    </script>
 </body>
 </html>
