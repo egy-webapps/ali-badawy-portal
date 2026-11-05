@@ -74,18 +74,6 @@
       height: 240px;
       object-fit: cover;
   }
-  .footer-links {
-      text-align: center;
-      margin-top: 30px;
-      padding: 20px;
-      font-size: 0.9rem;
-  }
-  .footer-links a {
-      color: var(--primary-color);
-      text-decoration: none;
-      font-weight: 700;
-      margin: 0 10px;
-  }
 </style>
 </head>
 <body>
@@ -189,12 +177,12 @@
         <a href="tel:01016541333" class="phone-link fs-5"><i class="fa-solid fa-phone-volume me-1"></i> 01016541333</a>
       </div>
 
-      <!-- قسم النشاط والفعاليات -->
+      <!-- قسم النشاط والفعاليات (الصورة المطلوبة أصبحت في المقدمة) -->
       <div class="activity-section">
         <h4 class="fw-bold mb-3 text-center" style="color:var(--primary-color);"><i class="fa-solid fa-medal text-warning"></i> جولات وإنجازات معالي النائب علي بدوي</h4>
         <p class="text-muted text-center small mb-4">مسيرة عمل دؤوب، وتواصل مستمر مع أهالي الدائرة وتحرّك ميداني لا يتوقف لخدمة الصالح العام.</p>
 
-        <!-- الصورة 1 -->
+        <!-- الصورة 1 (المطلوبة في البداية): مجالس العطاء واللقاءات الجماهيرية -->
         <div class="activity-card">
           <img src="1793739600277.jpg" alt="مجالس العطاء واللقاءات الجماهيرية" class="activity-img" onerror="this.src='og-image.jpg'">
           <div class="p-3 text-center">
@@ -203,7 +191,7 @@
           </div>
         </div>
 
-        <!-- الصورة 2 -->
+        <!-- الصورة 2: طرح الوحدات الصحية والتأمين الصحي الشامل -->
         <div class="activity-card">
           <img src="1793739516393.jpg" alt="طرح الوحدات الصحية" class="activity-img" onerror="this.src='og-image.jpg'">
           <div class="p-3 text-center">
@@ -212,7 +200,7 @@
           </div>
         </div>
 
-        <!-- الصورة 3 -->
+        <!-- الصورة 3: جولة في الشارع مع الأهالي -->
         <div class="activity-card">
           <img src="1793739732289.jpg" alt="جولة ميدانية حرة" class="activity-img" onerror="this.src='og-image.jpg'">
           <div class="p-3 text-center">
@@ -221,7 +209,7 @@
           </div>
         </div>
 
-        <!-- الصورة 4 -->
+        <!-- الصورة 4: اللقاء الجماهيري الموسع الآخر -->
         <div class="activity-card">
           <img src="1793739743604.jpg" alt="لقاء جماهيري موسع" class="activity-img" onerror="this.src='og-image.jpg'">
           <div class="p-3 text-center">
@@ -230,7 +218,7 @@
           </div>
         </div>
 
-        <!-- الصورة 5 -->
+        <!-- الصورة 5: اللقاء الرسمي مع رئيس الوزراء -->
         <div class="activity-card">
           <img src="1793736949525.jpg" alt="لقاء رسمي" class="activity-img" onerror="this.src='og-image.jpg'">
           <div class="p-3 text-center">
@@ -239,7 +227,7 @@
           </div>
         </div>
 
-        <!-- الصورة 6 -->
+        <!-- الصورة 6: متابعة المشاريع الإنشائية -->
         <div class="activity-card">
           <img src="1793737035420.jpg" alt="متابعة ميدانية" class="activity-img" onerror="this.src='og-image.jpg'">
           <div class="p-3 text-center">
@@ -248,7 +236,7 @@
           </div>
         </div>
 
-        <!-- الصورة 7 -->
+        <!-- الصورة 7: التواصل الدائم -->
         <div class="activity-card">
           <img src="1793736996781.jpg" alt="تواصل دائم" class="activity-img" onerror="this.src='og-image.jpg'">
           <div class="p-3 text-center">
@@ -257,21 +245,15 @@
           </div>
         </div>
 
-        <!-- الصورة 8 -->
+        <!-- الصورة 8: جولات ورصف وتطوير -->
         <div class="activity-card">
           <img src="1793737100161.jpg" alt="أعمال التطوير" class="activity-img" onerror="this.src='og-image.jpg'">
           <div class="p-3 text-center">
             <h5 class="fw-bold mb-1" style="color:var(--primary-color);">جولات ميدانية لمتابعة أعمال التطوير والرصف</h5>
-            <p class="text-muted small mb-0">تواجد ميداني مستمر لمتابعة أعمال رصف الطرق وتطوير البنية التحتية والمرافق العامة بالدائرة.</p>
+            <p class="text-muted small mb-0">تواجد ميداني مستمر مع الأهالي لمتابعة أعمال رصف الطرق وتطوير البنية التحتية والمرافق العامة بالدائرة.</p>
           </div>
         </div>
 
-      </div>
-
-      <!-- روابط أسفل الموقع المطلوبة لجوجل -->
-      <div class="footer-links">
-        <a href="privacy.html">سياسة الخصوصية</a> | 
-        <span>جميع الحقوق محفوظة © 2026 - مكتب النائب علي بدوي</span>
       </div>
 
     </div>
@@ -353,7 +335,7 @@
 
       $('generatedTicket').textContent = data;
       new bootstrap.Modal($('successModal')).show();
-      $('complaintForm'].reset();
+      $('complaintForm').reset();
     } catch (err) {
       console.error(err);
       const m = (err && err.message) || '';
