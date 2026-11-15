@@ -307,7 +307,7 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   });
 
-  // ----- الطباعة -----
+  // ----- طباعة طلب -----
   function printRequest(r){
     const status = $('mStatus').value, note = $('mNote').value.trim();
     const w = window.open('', '_blank');
@@ -371,11 +371,51 @@ ${note ? row('رد المكتب', note) : ''}
 
     const f = $('mFile'); f.replaceChildren();
     if (r.attachment) {
-      const { data, error } = await sb.storage.from('attachments').createSignedUrl(r.attachment, 300);
-      if (!error && data) {
-        const a = el('a', 'btn btn-outline-primary btn-sm', 'فتح المرفق');
-        a.href = data.signedUrl; a.target = '_blank'; a.rel = 'noopener'; f.appendChild(a);
-      } else f.appendChild(el('span', 'text-danger small', 'تعذّر تحميل المرفق'));
+      const ext = (r.attachment.split('.').pop() || 'jpg').toLowerCase();
+      const fname = r.ticket + '.' + ext;
+      const isImg = ['jpg', 'jpeg', 'png'].includes(ext);
+      const signed = async opts => {
+        const { data, error } = await sb.storage.from('attachments').createSignedUrl(r.attachment, 300, opts);
+        if (error || !data) throw error || new Error('signed');
+        return data.signedUrl;
+      };
+      const fail = () => window.alert('تعذّر تحميل المرفق، حاول مرة أخرى.');
+      const download = async () => { try { location.href = await signed({ download: fname }); } catch { fail(); } };
+
+      const box = el('div', 'position-relative border rounded overflow-hidden mb-2');
+      const dl = el('button', 'btn btn-primary rounded-circle shadow', '⬇');
+      dl.type = 'button'; dl.title = 'تنزيل المرفق';
+      dl.style.cssText = 'position:absolute;top:8px;left:8px;width:46px;height:46px;font-size:1.3rem;padding:0;z-index:2';
+      dl.addEventListener('click', download);
+      if (isImg) {
+        const img = el('img'); img.alt = 'المرفق';
+        img.style.cssText = 'width:100%;display:block;max-height:60vh;object-fit:contain;background:#f1f1f1';
+        signed().then(u => { img.src = u; }).catch(() => { img.replaceWith(el('div', 'p-4 text-center text-danger small', 'تعذّر عرض المرفق')); });
+        box.append(img, dl);
+      } else {
+        const card = el('div', 'p-4 pt-5 text-center bg-light');
+        card.append(el('div', 'fs-1', '📄'), el('div', 'fw-bold', 'ملف PDF'), el('div', 'small text-muted', fname));
+        box.append(card, dl);
+      }
+      f.appendChild(box);
+
+      const btn = (txt, cls, fn) => { const b = el('button', 'btn btn-sm ' + cls + ' me-1 mb-1', txt); b.type = 'button'; b.addEventListener('click', fn); f.appendChild(b); };
+      btn('⬇ تنزيل المرفق', 'btn-primary', download);
+      btn('فتح في صفحة', 'btn-outline-primary', async () => {
+        const w = window.open('', '_blank');
+        try { const u = await signed(); if (w) w.location = u; else location.href = u; }
+        catch { if (w) w.close(); fail(); }
+      });
+      const canShare = navigator.share && navigator.canShare && navigator.canShare({ files: [new File([''], 'a.pdf', { type: 'application/pdf' })] });
+      if (canShare) {
+        btn('↗ مشاركة', 'btn-success', async () => {
+          try {
+            const res = await fetch(await signed());
+            const blob = await res.blob();
+            await navigator.share({ files: [new File([blob], fname, { type: blob.type })], title: r.ticket });
+          } catch (e) { if (!e || e.name !== 'AbortError') fail(); }
+        });
+      }
     }
     modal.show();
   }
@@ -393,4 +433,4 @@ ${note ? row('رد المكتب', note) : ''}
   init();
 </script>
 </body>
-  </html>
+</html>
